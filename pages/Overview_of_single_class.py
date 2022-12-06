@@ -14,13 +14,17 @@ except KeyError:
     st.error('Please log in first in the introduction section')
     st.stop()
 
-st.title('Learning & Engagement 2022/2023')
-
+st.info('# Overview: single class')
+st.markdown(
+    '- The primary purpose of this page is to provide a detailed overview of each question in the survey for a particular class'
+)
 violin_image = Image.open('assets/violin_explanation.png')
 
-st.markdown('## Explanation of the charts below')
-with st.expander('Click to expand/collapse'):
-    st.image(violin_image, use_column_width=True)
+st.info('## 1.0 – Explanation of the charts below')
+st.markdown(
+    '- On this page, you will see charts that are similar to the example below. In this example, you can see the following: 50% of responses fall between the values of 7 and 8; ~25% of responses fall between the values of 6 and 7; ~25% of responses fall between the values of 8 and 9; the median value is 8.'
+)
+st.image(violin_image, use_column_width=True)
 
 df = decrypt_data('survey_data_2223.csv')
 
@@ -28,7 +32,10 @@ questions = df.columns[4:-4].tolist()
 
 classes_available = df['Class'].unique().tolist()
 
-st.markdown('## Filter and select')
+st.info('## 1.1 – Filter and select')
+st.markdown(
+    '- Here, you can select the class you want to see the results for. To choose a class, you can either scroll through the list of classes or directly write the name of one you would like to see. Additionally, you select or deselect the years and programs you would like to see the results for, and the charts below will be updated accordingly.'
+)
 selected_class = st.selectbox(label='Select a class',
                               options=classes_available)
 
@@ -36,13 +43,6 @@ list_of_teachers = [x for x in TEACHERS.keys()]
 
 filtered_df_by_class = df[(df['Class'] == selected_class)]
 filtered_df_by_class_comments = filtered_df_by_class[['Comments']].dropna()
-
-if logged_user in ALL_ACCESS:
-    with st.expander('Comments', expanded=True):
-        st.table(filtered_df_by_class_comments)
-elif (selected_class in TEACHERS[logged_user]):
-    with st.expander('Comments', expanded=True):
-        st.table(filtered_df_by_class_comments)
 
 left_filter_col, right_filter_col = st.columns(2)
 
@@ -80,7 +80,10 @@ df_metrics = reduce(
 class_size = filtered_df_by_class.iloc[0]['Class size']
 n_respondents = filtered_df_by_class.iloc[0]['Respondents']
 
-st.markdown('## Charts')
+st.info('## 1.2 – Charts')
+st.markdown(
+    '- To see the additional comments left by students in this class, scroll to the bottom of the page.'
+)
 st.success(f'Response rate: {n_respondents} out of {class_size} students.')
 
 
@@ -146,7 +149,11 @@ leftcol, rightcol = st.columns(2)
 for i, chart in enumerate(all_charts):
     if i % 2 == 0:
 
-        leftcol.info('Figure {}'.format(i + 1))
+        leftcol.warning('Figure {}'.format(i + 1))
+        if (i == 14):
+            leftcol.markdown(
+                '- Be aware that unlike with other questions, lower values on this question are more desirable.'
+            )
         leftcol.pyplot(chart)
         leftcol.markdown(
             f'#### Mean: <span style="border-radius:4px;padding:0 6px; color:#FFFFFF;background-color:{get_styles_mean(all_mean[i])}">**{round(all_mean[i],1)}**</span>, Standard deviation: <span style="border-radius:4px;padding:0 6px; color:#FFFFFF; background-color:{get_styles_stdev(all_stdev[i])}">{round(all_stdev[i],1)}</span>',
@@ -154,9 +161,15 @@ for i, chart in enumerate(all_charts):
         leftcol.markdown('---')
 
     else:
-        rightcol.info('Figure {}'.format(i + 1))
+        rightcol.warning('Figure {}'.format(i + 1))
         rightcol.pyplot(chart)
         rightcol.markdown(
             f'#### Mean: <span style="border-radius:4px;padding:0 6px; color:#FFFFFF;background-color:{get_styles_mean(all_mean[i])}">**{round(all_mean[i],1)}**</span>, Standard deviation: <span style="border-radius:4px;padding:0 6px; color:#FFFFFF; background-color:{get_styles_stdev(all_stdev[i])}">{round(all_stdev[i],1)}</span>',
             unsafe_allow_html=True)
         rightcol.markdown('---')
+        if (i == 13):
+            rightcol.warning('Comments')
+            if logged_user in ALL_ACCESS:
+                rightcol.table(filtered_df_by_class_comments)
+            elif (selected_class in TEACHERS[logged_user]):
+                rightcol.table(filtered_df_by_class_comments)
