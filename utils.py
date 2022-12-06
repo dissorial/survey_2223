@@ -77,8 +77,8 @@ def plot_bar_chart_classes(df, aggfunction, color_input):
                 # legendY=-70,
                 # legendX=400,
                 gradientThickness=20,
-                gradientLength=500,
-                tickCount=10)))
+                gradientLength=250,
+                tickCount=8)))
 
     chart_text = chart.mark_text(
         color='white',
