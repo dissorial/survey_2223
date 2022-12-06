@@ -169,6 +169,9 @@ for i, chart in enumerate(all_charts):
         rightcol.markdown('---')
         if (i == 13):
             rightcol.warning('Comments')
+            rightcol.write(
+                'Please note that the numbers in the first column have no relevance to the actual number or content of comments left by students.'
+            )
             if logged_user in ALL_ACCESS:
                 rightcol.table(filtered_df_by_class_comments)
             elif (selected_class in TEACHERS[logged_user]):
