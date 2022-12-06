@@ -1,15 +1,11 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.express as px
-from utils import seaborn_violin_plot, plot_bar_chart_classes, TEACHERS, ALL_ACCESS, CLASS_LIST
+from utils import seaborn_violin_plot, TEACHERS, ALL_ACCESS, decrypt_data
 from functools import reduce
 from PIL import Image
 
 st.set_page_config(layout="wide",
-                   page_title='Introduction',
+                   page_title='Class drilldown',
                    initial_sidebar_state='expanded')
 
 try:
@@ -22,15 +18,17 @@ st.title('Learning & Engagement 2022/2023')
 
 violin_image = Image.open('assets/violin_explanation.png')
 
-with st.expander('Explanation of the charts below'):
+st.markdown('## Explanation of the charts below')
+with st.expander('Click to expand/collapse'):
     st.image(violin_image, use_column_width=True)
 
-df = pd.read_csv('sample_test.csv')
+df = decrypt_data('survey_data_2223.csv')
 
 questions = df.columns[4:-4].tolist()
 
 classes_available = df['Class'].unique().tolist()
 
+st.markdown('## Filter and select')
 selected_class = st.selectbox(label='Select a class',
                               options=classes_available)
 
@@ -71,7 +69,6 @@ def filter_df_by_class_program(df, years_input, programs_input):
 meta_filtered = filter_df_by_class_program(filtered_df_by_class,
                                            selected_years, selected_programs)
 
-# meta_filtered = filtered_df_by_class.copy()
 question_std = meta_filtered.groupby('Class').std().reset_index()
 question_mean = meta_filtered.groupby('Class').mean().reset_index()
 grouped_metrics = [question_std, question_mean]
@@ -83,6 +80,7 @@ df_metrics = reduce(
 class_size = filtered_df_by_class.iloc[0]['Class size']
 n_respondents = filtered_df_by_class.iloc[0]['Respondents']
 
+st.markdown('## Charts')
 st.success(f'Response rate: {n_respondents} out of {class_size} students.')
 
 

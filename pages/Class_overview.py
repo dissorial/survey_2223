@@ -1,14 +1,10 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.express as px
-from utils import seaborn_violin_plot, plot_bar_chart_classes, CLASS_LIST, global_stats, ALL_ACCESS, TEACHERS
+from utils import plot_bar_chart_classes, CLASS_LIST, decrypt_data
 from functools import reduce
 
 st.set_page_config(layout="wide",
-                   page_title='Introduction',
+                   page_title='Class overview',
                    initial_sidebar_state='expanded')
 
 try:
@@ -19,18 +15,14 @@ except KeyError:
 
 st.title('Class overview')
 
-df = pd.read_csv('survey_data_2223')
+df = decrypt_data('survey_data_2223.csv')
 
 questions = df.columns[4:-4].tolist()
 
 no_selected_classes_container = st.container()
-# total answers 722
-#how many students filled out the survey for at least one class: 112
-# avg number of surveys filled out by student: 6.45
 
 
 def get_classes_from_categories(class_category_input):
-    #loop through keys in class_category_input and print their values
     res = []
     for key, value in CLASS_LIST.items():
         if value == class_category_input:
@@ -155,8 +147,6 @@ else:
     filtered_ap_classes = ap_container.multiselect('Select AP classes',
                                                    ap_classes)
 
-#create a function
-
 filtered_classes = filtered_ces_classes + filtered_csem_classes + filtered_el_classes + filtered_ell_classes + filtered_leaf_core_classes + filtered_math_classes + filtered_nl_classes + filtered_science_classes + filtered_ap_classes
 
 class_df = df[df['Class'].isin(filtered_classes)]
@@ -198,7 +188,7 @@ question_df_median = question_df.median()
 
 with st.expander('Question statistics', expanded=True):
     st.markdown(
-        'The values below are calculated on the whole dataset (all years, programs and classes)'
+        'The values below are calculated on the whole dataset (all years, programs and classes).'
     )
     l_expander_col, m_expander_col, r_expander_col = st.columns(3)
     with l_expander_col:
@@ -210,6 +200,10 @@ with st.expander('Question statistics', expanded=True):
     with r_expander_col:
         st.metric(label='Standard deviation',
                   value=round(question_df_std[selected_question], 1))
+
+    st.markdown(
+        'In total, there were 722 responses responses in the survey across 74 different classes by 112 students. Each student filled out the survey ~6 times on average. '
+    )
 
 st.info('Hover over the bar charts to see more information')
 filtered_df = class_df[(class_df['Year'].isin(selected_years))
