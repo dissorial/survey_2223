@@ -72,22 +72,24 @@ def plot_bar_chart_classes(df, aggfunction, color_input):
             legend=alt.Legend(
                 direction='vertical',
                 titleAnchor='middle',
-                orient='left',
+                orient='right',
+                padding=25,
                 # legendY=-70,
                 # legendX=400,
                 gradientThickness=20,
-                gradientLength=250,
+                gradientLength=500,
                 tickCount=10)))
 
     chart_text = chart.mark_text(
+        color='white',
         align='left',
         baseline='middle',
         dx=10,
         fontWeight=400,
-        color='red',
         dy=0).encode(text=alt.Text('{}'.format(aggfunction)))
 
-    return (chart + chart_text)
+    return (chart +
+            chart_text).configure_view(strokeWidth=0).configure_axis(grid=True)
 
 
 global_stats = {
