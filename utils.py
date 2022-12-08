@@ -21,9 +21,13 @@ def altair_class_barchart(df, aggregate):
             axis=alt.Axis(title=''),
             sort=alt.EncodingSortField(field='value',
                                        order='descending',
-                                       op='sum'))).transform_aggregate(
+                                       op='sum')), tooltip=alt.value(None)
+                                       
+                                       ).transform_aggregate(
                                            value='{}(value)'.format(aggregate),
-                                           groupby=['variable'])
+                                           groupby=['variable'],
+                                           #disable tooltip
+                                       )
 
     chart_text = chart.mark_text(
         align='left',
