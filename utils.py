@@ -7,6 +7,34 @@ from cryptography.fernet import Fernet
 import io
 
 
+def altair_class_barchart(df, aggregate):
+    chart = alt.Chart(df).mark_bar().encode(
+        x=alt.X(
+            'value',
+            axis=alt.Axis(gridOpacity=0.3,
+                          values=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                          title='{} score'.format(aggregate)),
+            scale=alt.Scale(domain=(0, 10)),
+        ),
+        y=alt.Y(
+            'variable',
+            axis=alt.Axis(title=''),
+            sort=alt.EncodingSortField(field='value',
+                                       order='descending',
+                                       op='sum'))).transform_aggregate(
+                                           value='{}(value)'.format(aggregate),
+                                           groupby=['variable'])
+
+    chart_text = chart.mark_text(
+        align='left',
+        baseline='middle',
+        dx=3,
+    ).encode(text=alt.Text('value:Q', format='.1f'))
+
+    return (chart + chart_text).configure_view(strokeWidth=0).configure_axis(
+        grid=False, labelLimit=1000)
+
+
 def decrypt_data(filepath):
     key = st.secrets['key']
 

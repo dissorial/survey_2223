@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils import seaborn_violin_plot, TEACHERS, ALL_ACCESS, decrypt_data
+from utils import seaborn_violin_plot, TEACHERS, ALL_ACCESS, decrypt_data, altair_class_barchart
 from functools import reduce
 from PIL import Image
 
@@ -27,6 +27,8 @@ st.markdown(
 st.image(violin_image, use_column_width=True)
 
 df = decrypt_data('survey_data_2223.csv')
+# df_summary = pd.read_csv('survey_data_2223_melted.csv')
+df_summary = decrypt_data('survey_data_2223_summary.csv')
 
 questions = df.columns[4:-4].tolist()
 
@@ -42,6 +44,7 @@ selected_class = st.selectbox(label='Select a class',
 list_of_teachers = [x for x in TEACHERS.keys()]
 
 filtered_df_by_class = df[(df['Class'] == selected_class)]
+summary_filtered_by_class = df_summary[(df_summary['Class'] == selected_class)]
 filtered_df_by_class_comments = filtered_df_by_class[['Comments']].dropna()
 
 left_filter_col, right_filter_col = st.columns(2)
@@ -80,7 +83,22 @@ df_metrics = reduce(
 class_size = filtered_df_by_class.iloc[0]['Class size']
 n_respondents = filtered_df_by_class.iloc[0]['Respondents']
 
-st.info('## 1.2 – Charts')
+st.info('## 1.2 – Summary chart')
+st.markdown(
+    '- The chart below provides a simple summary of the results for the selected class, which can be useful for getting a quick glance of its strengths from the students’ perspective.'
+)
+st.markdown(
+    '- Please note that the statements "I want to learn as much as possible in this class", "I want to get the best mark/grade.", and "I just want to pass the class." are not included in the chart below. This is to discourage rapid comparisons between classes that may lack the sufficient nuance to be meaningful.'
+)
+aggfunc = st.selectbox('Select an aggregation function for the chart below',
+                       options=['mean', 'median'])
+summary_filtered_by_class_year_program = filter_df_by_class_program(
+    summary_filtered_by_class, selected_years, selected_programs)
+summary_bar_chart = altair_class_barchart(
+    summary_filtered_by_class_year_program, aggfunc)
+st.altair_chart(summary_bar_chart, use_container_width=True)
+
+st.info('## 1.3 – Detailed charts')
 st.markdown(
     '- To see the additional comments left by students in this class, scroll to the bottom of the page.'
 )
