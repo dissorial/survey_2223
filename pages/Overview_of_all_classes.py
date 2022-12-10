@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils import plot_bar_chart_classes, CLASS_LIST, decrypt_data
+from utils.utils import plot_bar_chart_classes, CLASS_LIST, decrypt_data
 from functools import reduce
 
 st.set_page_config(layout="wide",

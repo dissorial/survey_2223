@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils import seaborn_violin_plot, TEACHERS, ALL_ACCESS, decrypt_data, altair_class_barchart
+from utils.utils import seaborn_violin_plot, TEACHERS, ALL_ACCESS, decrypt_data, altair_class_barchart
 from functools import reduce
 from PIL import Image
 
