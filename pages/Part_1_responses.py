@@ -15,7 +15,7 @@ except KeyError:
     st.error('Please log in first in the introduction section')
     st.stop()
 
-if logged_user not in ['zavodsky', 'klagova']:
+if logged_user not in ['zavodsky', 'klagova','kurian']:
     st.error('You are not authorized to view this page')
     st.stop()
 
