@@ -58,4 +58,7 @@ def get_std_data(df):
 
 
 def get_remaining_questions(df, free_response_question_input):
-    return df[[free_response_question_input]]
+    # return df[[free_response_question_input]]
+    column_list = df.columns[1:3].tolist() + [free_response_question_input]
+    selected_columns = df[column_list]
+    return selected_columns

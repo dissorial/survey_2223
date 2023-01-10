@@ -5,6 +5,7 @@
 
 #other
 unused/
+local_data/
 
 # Visual Studio Code
 .vscode/*
