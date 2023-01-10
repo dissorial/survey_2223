@@ -14,6 +14,9 @@ def read_markdown_file(markdown_file):
 
 
 st.info('# Learning & Engagement: Part 1 responses')
+st.warning(
+    '*For the best viewing experience, open the menu in the top right corner, click "Settings" and choose a "Light" theme.*'
+)
 
 try:
     logged_user = st.session_state['logged_user']
@@ -21,7 +24,7 @@ except KeyError:
     st.error('Please log in first in the introduction section')
     st.stop()
 
-if logged_user not in ['zavodsky', 'klagova', 'kurian','sapak']:
+if logged_user not in ['zavodsky', 'klagova', 'kurian', 'sapak']:
     st.error('You are not authorized to view this page')
     st.stop()
 
