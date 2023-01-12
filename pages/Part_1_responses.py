@@ -1,7 +1,7 @@
 import streamlit as st
 from pathlib import Path
 import pandas as pd
-from utils.part1 import get_remaining_questions, plot_barchart_answers, get_question_data, get_mean_data, get_median_data, get_std_data
+from utils.part1 import get_mean_data, get_median_data, get_std_data, get_question_data, plot_bar_chart
 from utils.utils import decrypt_data
 
 st.set_page_config(layout="wide",
@@ -32,7 +32,8 @@ st.markdown('## Response rate information')
 
 st.markdown(read_markdown_file("markdown/response_rate_information.md"),
             unsafe_allow_html=True)
-df = decrypt_data('part1.csv')
+
+df = decrypt_data('part_1_data_merged.csv')
 
 st.info('## Questions 1-4')
 selected_question = st.selectbox(
@@ -55,43 +56,41 @@ with st.sidebar:
         '*Please note that interacting with the filters above will filter responses to everything you see on this page.*'
     )
 
-df_filtered_by_year_program = df[(df['Year'].isin(selected_years))
-                                 & (df['Program'].isin(selected_programs))]
+merged_filtered_by_year_program = df[(df['Year'].isin(selected_years))
+                                     & (df['Program'].isin(selected_programs))]
 
-filtered_by_question = get_question_data(df_filtered_by_year_program,
-                                         selected_question)
+merged_filtered_by_question = get_question_data(df, selected_question)
 
-bar_chart_answers = plot_barchart_answers(filtered_by_question)
-st.altair_chart(bar_chart_answers, use_container_width=True)
-
-quality_of_learning_df = df_filtered_by_year_program[[
-    df_filtered_by_year_program.columns[7], 'Year'
-]]
+merged_bar_chart = plot_bar_chart(merged_filtered_by_question)
+st.pyplot(merged_bar_chart, use_container_width=True)
 
 st.info('## Question 5')
 st.markdown(
     '- **My concerns about the quality of learning that I expressed this year have been addressed (1 - No, not at all  vs 10 - Yes, all of them)**'
 )
+quality_of_learning_merged = merged_filtered_by_year_program[[
+    merged_filtered_by_year_program.columns[7], 'data_year'
+]]
 
 leftcol, middlecol, rightcol = st.columns(3)
 with leftcol:
-    mean_data = get_mean_data(quality_of_learning_df)
-    st.metric(label='Mean', value=mean_data)
+    mean_data_21 = get_mean_data(quality_of_learning_merged, '2021-22')
+    mean_data_22 = get_mean_data(quality_of_learning_merged, '2022-23')
+    st.metric(label='Mean',
+              value=mean_data_22,
+              delta='{} from previous year'.format(
+                  round(mean_data_22 - mean_data_21, 2)))
 with middlecol:
-    median_data = get_median_data(quality_of_learning_df)
-    st.metric(label='Median', value=median_data)
+    median_data_21 = get_median_data(quality_of_learning_merged, '2021-22')
+    median_data_22 = get_median_data(quality_of_learning_merged, '2022-23')
+    st.metric(label='Median',
+              value=median_data_22,
+              delta='{} from previous year'.format(
+                  round(median_data_22 - median_data_21, 2)))
 with rightcol:
-    std_data = get_std_data(quality_of_learning_df)
-    st.metric(label='Standard deviation', value=std_data)
-
-st.info('## Questions 6 and 7')
-
-free_response_question = st.selectbox(
-    label='Select a question',
-    options=df_filtered_by_year_program.columns[8:].tolist())
-
-other_questions_data = get_remaining_questions(df_filtered_by_year_program,
-                                               free_response_question)
-
-with st.expander('Expand/collapse to see/hide answers', expanded=True):
-    st.table(other_questions_data)
+    std_data_21 = get_std_data(quality_of_learning_merged, '2021-22')
+    std_data_22 = get_std_data(quality_of_learning_merged, '2022-23')
+    st.metric(label='Standard deviation',
+              value=std_data_22,
+              delta='{} from previous year'.format(
+                  round(std_data_22 - std_data_21, 2)))

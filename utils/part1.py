@@ -1,64 +1,57 @@
 import pandas as pd
-import altair as alt
 import seaborn as sns
 from matplotlib import pyplot as plt
-import streamlit as st
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 
 
-def plot_barchart_answers(df):
-    chart = alt.Chart(df).mark_bar().encode(
-        x=alt.X('Count',
-                axis=alt.Axis(
-                    gridOpacity=0.5,
-                    title='Number of students who chose this answer choice',
-                    format='.0f')),
-        y=alt.Y('Responses',
-                sort=alt.EncodingSortField(field='Count',
-                                           op='sum',
-                                           order='descending'),
-                axis=alt.Axis(labels=False,
-                              title='Answer choice',
-                              gridOpacity=0)))
-
-    chart_text = chart.mark_text(align='left', baseline='middle',
-                                 dx=5).encode(text=alt.Text('Responses'))
-
-    return (chart + chart_text).configure_view(strokeWidth=0).configure_axis(
-        grid=True, labelLimit=1000)
+def plot_bar_chart(df):
+    fig = plt.figure(figsize=(10, 5))
+    chart = sns.barplot(data=df,
+                        x='Count',
+                        y='Responses',
+                        hue='data_year',
+                        orient='h')
+    chart.set_title('Response comparison between 2021-22 and 2022-23')
+    chart.set_xlabel('Percentage of responses')
+    chart.set_ylabel('')
+    chart.set_xticks(np.arange(0, 100, 10))
+    chart.set_xticklabels(np.arange(0, 100, 10))
+    chart.set_yticklabels(chart.get_yticklabels(), rotation=0)
+    chart.legend(loc='upper right')
+    chart.grid(axis='x')
+    return fig
 
 
 def get_question_data(df, chosen_question):
-    studentinfo = df[['Year']]
-
-    isolated_question_df = df[[chosen_question, 'Year']]
+    responseYear = df[['data_year']]
+    isolated_question_df = df[[chosen_question, 'data_year']]
     split_isolated_df = isolated_question_df[chosen_question].str.split(
         ',', expand=True)
-
-    merged = pd.concat([split_isolated_df, studentinfo], axis=1)
-
-    melted = merged.melt(id_vars=['Year'], value_name='Responses')
+    merged = pd.concat([split_isolated_df, responseYear], axis=1)
+    melted = merged.melt(id_vars=['data_year'], value_name='Responses')
     melted['Count'] = 1
-    # grouped['Responses'] = grouped['Responses'].str.strip()
     melted['Responses'] = melted['Responses'].str.strip()
-    grouped = melted.groupby(['Responses']).sum().reset_index()
-
-    return grouped
-
-
-def get_mean_data(df):
-    return round(df[df.columns[0]].mean(), 1)
-
-
-def get_median_data(df):
-    return round(df[df.columns[0]].median(), 1)
+    grouped = melted.groupby(['Responses', 'data_year']).sum().reset_index()
+    filtered_group = grouped[(grouped['Count'] != 0) & (grouped['Count'] != 1)]
+    filtered_group['Count'] = filtered_group.apply(
+        lambda row: (row['Count'] / 91) * 100
+        if row['data_year'] == '2021-22' else (row['Count'] / 58) * 100,
+        axis=1)
+    return filtered_group
 
 
-def get_std_data(df):
-    return round(df[df.columns[0]].std(), 2)
+def get_mean_data(df, data_year):
+    filtered_df = df[df['data_year'] == data_year]
+    return round(filtered_df[filtered_df.columns[0]].mean(), 2)
 
 
-def get_remaining_questions(df, free_response_question_input):
-    # return df[[free_response_question_input]]
-    column_list = df.columns[1:3].tolist() + [free_response_question_input]
-    selected_columns = df[column_list]
-    return selected_columns
+def get_median_data(df, data_year):
+    filtered_df = df[df['data_year'] == data_year]
+    return round(filtered_df[filtered_df.columns[0]].median(), 2)
+
+
+def get_std_data(df, data_year):
+    filtered_df = df[df['data_year'] == data_year]
+    return round(filtered_df[filtered_df.columns[0]].std(), 2)
